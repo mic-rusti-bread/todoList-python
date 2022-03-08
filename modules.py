@@ -3,17 +3,28 @@ import json
 import pickle
 
 class Activity:
-    def __init__(self, titolo, id=''):
+    def __init__(self, titolo, id=0):
         self.id = id
         self.titolo = titolo
         self.timestamp = datetime.timestamp(datetime.now()) 
         self.done = False
+
+    @property
+    def titolo(self):
+        return self._titolo
+    @titolo.setter
+    def titolo(self, value):
+        if len(value) < 5:
+            raise ValueError("Titolo troppo corto!")
+        self._titolo = value
+        
 
     def getTitle(self):
         return self.titolo
 
     def setTitle(self, nuovoTitolo):
         self.titolo = nuovoTitolo
+
 
     def setToggleDone(self):
         self.done = not self.done
@@ -22,7 +33,8 @@ class Activity:
         return json.dumps(self.__dict__)
 
 
-
+#si potrebbe aggiungere un dizionaro che tiene conto di qual#
+#id appartiene a quale indice nell'array per velocizzare la ricerca
 class ToDo:
     def __init__(self):
         self.list = []
@@ -44,12 +56,7 @@ class ToDo:
 
 
     def add(self, titolo):
-        if len(titolo) < 5:
-            return 'Titolo troppo corto'
-
-        #lo metto qui perche voglio che sia un progressivo
-        id = 0
-
+        id = 0 #lo metto qui perche voglio che sia un progressivo
         # aggiungo 1 al numero di index massimo contenuto visto che potrebbe non corrispondere alla lunghezza della list
         lengthList = len(self.list)
         if lengthList > 0:
@@ -58,19 +65,18 @@ class ToDo:
         newActivity = Activity(titolo, id)
         self.list.append(newActivity)
 
-    def remove(self, id):
-        obj = self.searchById(id)
-        if obj:
-            return "not found"
-        
-        self.list.remove(obj)    
-
     def edit(self, id, newTitle):
         obj = self.searchById(id)
-        if not obj :
+        if not obj:
             return "not found"
-        
         self.list[obj.id].setTitle(newTitle)
+
+    def remove(self, id):
+        obj = self.searchById(id)
+        if not obj:
+            return "not found"
+        self.list.remove(obj)    
+
 
     def toggleDone(self, id):
         obj = self.searchById(id)
@@ -86,7 +92,6 @@ class ToDo:
         for elem in self.list:
             if titleToSearch in elem.getTitle().lower():
                 returnList.append(elem)
-
         return returnList
 
     def searchById(self, id):
@@ -95,8 +100,6 @@ class ToDo:
                 return elem
         return False    
     
-    def validate(self, id, titolo, ):
-        pass
 
 
 
