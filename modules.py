@@ -1,15 +1,22 @@
 from datetime import datetime
+from fileinput import filename
 import json
 # from nis import cat
 import pickle
 
 class Activity:
+    ##for future updates
+    # si potrebbero usare i setter e getter del property() ma dopo sul json di __repr__ vengono gli attributi con davanti l'underscore (es. _titolo)
+    # da capire melgio
+    # self.title_validated = title
+    # title_validated=property(getTitle, setTitle)
+
+
     def __init__(self, title, id=0):
         self.id = id
-        self.title = self.setTitle(title)
+        self.setTitle(title)
         self.timestamp = datetime.timestamp(datetime.now()) 
         self.done = False
-
 
     def setTitle(self, value, validate = True):
         if validate:
@@ -25,37 +32,51 @@ class Activity:
 
     def __repr__(self): 
         return json.dumps(self.__dict__)
+    
 
 
-#si potrebbe aggiungere un dizionaro che tiene conto di qual
-#id appartiene a quale indice nell'array per velocizzare la ricerca
-#visto che al momento la property id viene considerata un identificativio e non un indice array
 class ToDo:
-    def __init__(self):
+    ##for future updates
+    # Right now all the 'searchById' is made bruteforcing the list, if the project scale up, we could implement a dictionary to map all the ids to the relative postion in the array
+    # same concept could apply to the 'searchByName'
+
+    def __init__(self, in_storageFile=''):
         self.list = []
-        self.loadFromStorage()
+        self.storageFile = in_storageFile
+        if self.storageFile != '':
+            self.loadFromStorage()
 
-    def getList(self, orderBy, reverseParam=False):
-        return sorted(self.list, key=lambda activity: getattr(activity, orderBy), reverse=reverseParam)
+    def getList(self, orderBy, in_reverse=False):
+        return sorted(self.list, key=lambda activity: getattr(activity, orderBy), reverse=in_reverse)
 
-    def loadFromStorage(self):
-        file = open("localPersist.txt","rb") 
+    def loadFromStorage(self, in_storageFile =''):
+        #Mi potrebbe specificare di fare il load da un altro file
+        filename = self.storageFile
+        if in_storageFile != '':
+            filename = in_storageFile
+
         try:
+            file = open(filename,"rb") 
             self.list = pickle.load(file)
-        except:
+        except FileNotFoundError:
             self.list = []
   
-    def saveToStorage(self):       
-        with open('localPersist.txt', 'wb') as file:
+    def saveToStorage(self, in_storageFile =''):  
+        #Mi potrebbe specificare di fare la save da un altro file
+        filename = self.storageFile
+        if in_storageFile != '':
+            filename = in_storageFile   
+
+        with open(filename, 'wb') as file:
             pickle.dump(self.list, file)
 
 
     def add(self, title):
-        id = 0 #lo metto qui perche voglio che sia un progressivo
-        # aggiungo 1 al numero di index massimo contenuto visto che potrebbe non corrispondere alla lunghezza della list
+        id = 0 #lo metto qui perchè è un progressivo della tabella
+        
         lengthList = len(self.list)
         if lengthList > 0:
-            id = self.list[lengthList - 1].id + 1           
+            id = self.list[lengthList - 1].id + 1         # aggiungo 1 al numero di index mssimo contenuto visto che potrebbe non corrispondere alla lunghezza della list
 
         try:
             newActivity = Activity(title, id)
@@ -66,7 +87,7 @@ class ToDo:
     def editTitle(self, id, newTitle):
         obj = self.searchById(id)
         if not obj:
-            return "not found"
+            return "id not found"
 
         try:
             self.list[obj.id].setTitle(newTitle)
@@ -76,16 +97,18 @@ class ToDo:
     def remove(self, id):
         obj = self.searchById(id)
         if not obj:
-            return "not found"
-        self.list.remove(obj)    
+            return "id not found"
+
+        self.list.remove(obj) 
 
 
     def toggleDone(self, id):
         obj = self.searchById(id)
         if not obj:
-            return "not found"
+            return "id not found"
 
         self.list[obj.id].setToggleDone()
+
 
     def searchByTitle(self, titleToSearch):
         returnList = []

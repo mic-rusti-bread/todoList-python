@@ -2,7 +2,7 @@ import argparse
 from modules import ToDo
 
 #init vars
-todo_list = ToDo()
+todo_list = ToDo('storagePersist.txt')
 parser = argparse.ArgumentParser(prog='todo_manager')
 returnValue = '' 
 
@@ -38,7 +38,7 @@ elif args.search:
 elif args.list:
     returnValue = todo_list.getList('id', True)
 
-if returnValue : print(returnValue)
+if returnValue != None: print(returnValue)
 
 #salvo
 todo_list.saveToStorage()
