@@ -10,7 +10,7 @@ class Test_Activity(unittest.TestCase):
             act.title = 'less'
 
         with self.assertRaises(ValueError):
-            act2 = Activity('lss')
+            act2 = Activity('less')
 
 
     def test_default_done(self):

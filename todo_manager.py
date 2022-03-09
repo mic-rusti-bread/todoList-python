@@ -4,7 +4,7 @@ from modules import ToDo
 #init vars
 todo_list = ToDo('storagePersist.txt')
 parser = argparse.ArgumentParser(prog='todo_manager')
-returnValue = '' 
+returnValue = None 
 
 #set args
 parser.add_argument("-ls", '--list', action="store_true", help='Lists all values ordered by desc(timestamp)')

@@ -1,7 +1,5 @@
 from datetime import datetime
-from fileinput import filename
 import json
-# from nis import cat
 import pickle
 
 class Activity:
@@ -36,9 +34,6 @@ class Activity:
 
 
 class ToDo:
-    ##for future updates
-    # Right now all the 'searchById' is made bruteforcing the list, if the project scale up, we could implement a dictionary to map all the ids to the relative postion in the array
-    # same concept could apply to the 'searchByName'
 
     def __init__(self, in_storageFile=''):
         self.list = []
@@ -72,7 +67,7 @@ class ToDo:
 
 
     def add(self, title):
-        id = 0 #lo metto qui perchè è un progressivo della tabella
+        id = 0      #lo metto qui perchè lo tratto come un progressivo della tabella
         
         lengthList = len(self.list)
         if lengthList > 0:
@@ -84,30 +79,20 @@ class ToDo:
         except ValueError as err:
             return 'Validation error:\n ' + str(err)
 
-    def editTitle(self, id, newTitle):
-        obj = self.searchById(id)
-        if not obj:
-            return "id not found"
-
+    def editTitle(self, index, newTitle):
         try:
-            self.list[obj.id].setTitle(newTitle)
+            self.list[index].setTitle(newTitle)
         except ValueError as err:
             return 'Validation error:\n ' + str(err)
 
-    def remove(self, id):
-        obj = self.searchById(id)
-        if not obj:
-            return "id not found"
-
-        self.list.remove(obj) 
+    def remove(self, index):
+        if (index-1) > len(self.list):
+            return 'Errorreeeee'
+        self.list.pop(index) 
 
 
-    def toggleDone(self, id):
-        obj = self.searchById(id)
-        if not obj:
-            return "id not found"
-
-        self.list[obj.id].setToggleDone()
+    def toggleDone(self, index):
+        self.list[index].setToggleDone()
 
 
     def searchByTitle(self, titleToSearch):
@@ -118,10 +103,3 @@ class ToDo:
             if titleToSearch in elem.getTitle().lower():
                 returnList.append(elem)
         return returnList
-
-    def searchById(self, id):
-        for elem in self.list:
-            if id == elem.id:
-                return elem
-        return False    
-    
