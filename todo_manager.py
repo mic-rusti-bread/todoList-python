@@ -2,7 +2,7 @@ import argparse
 from modules import ToDo
 
 #init vars
-todo_list = ToDo('storagePersist.txt')
+todo_list_manager = ToDo('storagePersist.txt')
 parser = argparse.ArgumentParser(prog='todo_manager')
 returnValue = None 
 
@@ -16,32 +16,43 @@ parser.add_argument("-s", '--search', nargs=1, type=str, help="Searches and exis
 args = parser.parse_args()
 
 
+
 if args.add:
-    returnValue = todo_list.add(args.add[0])
+        todo_list_manager.add(args.add[0])
 
 elif args.edit:    
     try:    
         i = int(args.edit[0])
-        todo_list.editTitle(i, args.edit[1])
+        todo_list_manager.editTitle(i, args.edit[1])
+        
     except ValueError:
         returnValue = 'Value of argument(/s) unexpected, refer to [-h | --help] for more information '
+    except IndexError as err:
+        returnValue = "Index Error: " + str(err)
 
 elif args.delete:
-    returnValue = todo_list.remove(args.delete[0])    
+    try:
+        todo_list_manager.remove(args.delete[0])    
+    except IndexError as err:
+        returnValue = "Index Error: " + str(err)
 
 elif args.toggle:
-    returnValue = todo_list.toggleDone(args.toggle[0])        
+    try:
+        todo_list_manager.toggleDone(args.toggle[0])        
+    except IndexError as err:
+        returnValue = "Index Error: " + str(err)
 
 elif args.search:
-    returnValue = todo_list.searchByTitle(args.search[0])
+    returnValue = todo_list_manager.searchByTitle(args.search[0])
 
 elif args.list:
-    returnValue = todo_list.getList('id', True)
+    returnValue = todo_list_manager.getList('id', True)
+
 
 if returnValue != None: print(returnValue)
 
 #salvo
-todo_list.saveToStorage()
+todo_list_manager.saveToStorage()
 
 
 

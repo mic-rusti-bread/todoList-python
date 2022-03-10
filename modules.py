@@ -1,3 +1,4 @@
+from ast import Index
 from datetime import datetime
 import json
 import pickle
@@ -16,7 +17,7 @@ class Activity:
         self.timestamp = datetime.timestamp(datetime.now()) 
         self.done = False
 
-    def setTitle(self, value, validate = True):
+    def setTitle(self, value, validate=True):
         if validate:
             if len(value) < 5:
                 raise ValueError("Title too short. Must be longer than 5 characters")
@@ -33,8 +34,8 @@ class Activity:
     
 
 
-class ToDo:
 
+class ToDo:
     def __init__(self, in_storageFile=''):
         self.list = []
         self.storageFile = in_storageFile
@@ -43,6 +44,7 @@ class ToDo:
 
     def getList(self, orderBy, in_reverse=False):
         return sorted(self.list, key=lambda activity: getattr(activity, orderBy), reverse=in_reverse)
+
 
     def loadFromStorage(self, in_storageFile =''):
         #Mi potrebbe specificare di fare il load da un altro file
@@ -56,6 +58,7 @@ class ToDo:
         except FileNotFoundError:
             self.list = []
   
+
     def saveToStorage(self, in_storageFile =''):  
         #Mi potrebbe specificare di fare la save da un altro file
         filename = self.storageFile
@@ -73,25 +76,22 @@ class ToDo:
         if lengthList > 0:
             id = self.list[lengthList - 1].id + 1         # aggiungo 1 al numero di index mssimo contenuto visto che potrebbe non corrispondere alla lunghezza della list
 
-        try:
-            newActivity = Activity(title, id)
-            self.list.append(newActivity)
-        except ValueError as err:
-            return 'Validation error:\n ' + str(err)
+        newActivity = Activity(title, id)
+        self.list.append(newActivity)
+
 
     def editTitle(self, index, newTitle):
-        try:
-            self.list[index].setTitle(newTitle)
-        except ValueError as err:
-            return 'Validation error:\n ' + str(err)
+        self.checkIndex(index)
+        self.list[index].setTitle(newTitle)
+
 
     def remove(self, index):
-        if (index-1) > len(self.list):
-            return 'Errorreeeee'
+        self.checkIndex(index)
         self.list.pop(index) 
 
 
     def toggleDone(self, index):
+        self.checkIndex(index)
         self.list[index].setToggleDone()
 
 
@@ -103,3 +103,7 @@ class ToDo:
             if titleToSearch in elem.getTitle().lower():
                 returnList.append(elem)
         return returnList
+
+    def checkIndex(self, index):
+        if index >= len(self.list) or index < 0:
+            raise IndexError('Index out of bound')        
